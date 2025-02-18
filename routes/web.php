@@ -10,7 +10,6 @@ Route::get('/', function () {
     return redirect()->route('contacts.index');
 });
 
-// Authentication Routes (Handled by Breeze)
 Route::middleware('guest')->group(function () {
     Route::get('/login', [AuthenticatedSessionController::class, 'create'])->name('login');
     Route::post('/login', [AuthenticatedSessionController::class, 'store']);
@@ -24,7 +23,6 @@ Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])
     ->name('logout')
     ->middleware('auth');
 
-// Contacts CRUD Routes
 Route::middleware('auth')->group(function () {
     Route::resource('contacts', ContactController::class);
 
