@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\ContactController;
+use App\Http\Controllers\ContactImportController;
 
 Route::get('/', function () {
     return redirect()->route('contacts.index');
@@ -27,6 +28,6 @@ Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])
 Route::middleware('auth')->group(function () {
     Route::resource('contacts', ContactController::class);
 
-    Route::get('contacts/import', [ContactController::class, 'importForm'])->name('contacts.import');
-    Route::post('contacts/import', [ContactController::class, 'import'])->name('contacts.import.process');
+    Route::post('contacts/import', [ContactImportController::class, 'import'])->name('contacts.import.process');
+    Route::get('contacts/export-xml', [ContactController::class, 'show'])->name('contacts.export.xml');
 });

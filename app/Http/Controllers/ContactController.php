@@ -9,16 +9,27 @@ use SimpleXMLElement;
 
 class ContactController extends Controller
 {
-    // public function index()
-    // {
-    //     $contacts = Contact::all();
-    //     return view('contacts.index', compact('contacts'));
-    // }
 
     public function index()
     {
-        $contacts = Contact::where('user_id', auth()->user()->id)->get();
+        $contacts = Contact::where('user_id', Auth::id())->get();
         return view('contacts.index', compact('contacts'));
+    }
+
+    public function show()
+    {
+        $contacts = Contact::where('user_id', Auth::id())->get();
+        $xml = new \SimpleXMLElement('<contacts/>');
+
+        foreach ($contacts as $contact) {
+            $contactElement = $xml->addChild('contact');
+            $contactElement->addChild('name', $contact->name);
+            $contactElement->addChild('phone', $contact->phone);
+        }
+
+        return response($xml->asXML())
+            ->header('Content-Type', 'application/xml')
+            ->header('Content-Disposition', 'attachment; filename="contacts.xml"');
     }
 
 
@@ -37,7 +48,7 @@ class ContactController extends Controller
         Contact::create([
             'name' => $request->name,
             'phone' => $request->phone,
-            'user_id' => auth()->user()->id,
+            'user_id' => Auth::id()
         ]);
 
         return redirect()->route('contacts.index')->with('success', 'Contact added successfully.');
@@ -71,26 +82,4 @@ class ContactController extends Controller
 
 
 
-
-    public function import(Request $request)
-    {
-        // Validate the file input
-        $request->validate([
-            'file' => 'required|file|mimes:xml',
-        ]);
-
-        // Load the XML file
-        $xml = simplexml_load_file($request->file('file')->getRealPath());
-
-        // Iterate over each contact in the XML
-        foreach ($xml->contact as $contactData) {
-            // Insert each contact into the database
-            Contact::create([
-                'name' => (string) $contactData->name,
-                'phone' => (string) $contactData->phone,
-            ]);
-        }
-
-        return redirect()->route('contacts.index')->with('success', 'Contacts imported successfully.');
-    }
 }
